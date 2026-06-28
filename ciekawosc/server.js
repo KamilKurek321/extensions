@@ -187,8 +187,13 @@ const server = http.createServer((req, res) => {
   fs.createReadStream(full).pipe(res);
 });
 
-server.listen(PORT, () => {
-  console.log('▶ CIEKAWOŚĆ Dashboard');
-  console.log(`  http://localhost:${PORT}`);
-  console.log(`  tryb: ${claudeOnPath() ? 'pełny (claude w PATH)' : 'podgląd (brak claude)'}`);
-});
+// Eksport do buildu statycznego (build.cjs) — serwer startuje tylko przy bezpośrednim uruchomieniu.
+module.exports = { buildState, parseThread };
+
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log('▶ CIEKAWOŚĆ Dashboard');
+    console.log(`  http://localhost:${PORT}`);
+    console.log(`  tryb: ${claudeOnPath() ? 'pełny (claude w PATH)' : 'podgląd (brak claude)'}`);
+  });
+}

@@ -4,7 +4,8 @@
   "description": "Dashboard dla autonomicznej pętli CIEKAWOŚĆ — podgląd wątków, napięć i bilansu epistemicznego.",
   "private": true,
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "node build.cjs"
   },
   "engines": {
     "node": ">=18"

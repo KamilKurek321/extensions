@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIEKAWOŚĆ · dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <style>
+:root {
+  --bg: #0b0d12;
+  --bg2: #11141c;
+  --panel: #161a24;
+  --panel2: #1c2130;
+  --line: #262c3a;
+  --txt: #e6e9f0;
+  --mut: #8b93a7;
+  --acc: #ff7a3d;
+  --acc2: #ffb86b;
+  --ust: #4ade80;
+  --wni: #60a5fa;
+  --spe: #fbbf24;
+  --nie: #a78bfa;
+  --shadow: 0 10px 40px rgba(0,0,0,.45);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font: 15px/1.6 ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--txt);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255,122,61,.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgba(167,139,250,.08), transparent 55%),
+    var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+#app { max-width: 1180px; margin: 0 auto; padding: 22px 22px 60px; }
+
+/* ---- topbar ---- */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.glyph {
+  font-size: 34px; line-height: 1;
+  filter: drop-shadow(0 0 14px rgba(255,122,61,.6));
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float { 50% { transform: translateY(-4px); } }
+.brand h1 { font-size: 24px; letter-spacing: 4px; font-weight: 800; }
+.tagline { color: var(--mut); font-size: 12px; letter-spacing: .5px; }
+.actions { display: flex; align-items: center; gap: 8px; }
+.pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--ust); box-shadow: 0 0 0 0 rgba(74,222,128,.6); animation: pp 2s infinite; }
+@keyframes pp { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,.5);} 70%{box-shadow:0 0 0 8px rgba(74,222,128,0);} 100%{box-shadow:0 0 0 0 rgba(74,222,128,0);} }
+.btn {
+  background: linear-gradient(180deg, var(--acc), #e85f24);
+  color: #1a0d06; border: none; border-radius: 9px; padding: 9px 14px;
+  font-weight: 700; font-size: 13px; cursor: pointer; transition: .15s;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(255,122,61,.35); }
+.btn:disabled { opacity: .45; cursor: progress; transform: none; box-shadow: none; }
+.btn.ghost { background: var(--panel2); color: var(--txt); border: 1px solid var(--line); }
+.btn.ghost:hover { box-shadow: none; border-color: var(--acc); }
+.badge { font-size: 11px; padding: 4px 9px; border-radius: 20px; border: 1px solid var(--line); }
+.badge.muted { color: var(--mut); }
+.badge.ok { color: var(--ust); border-color: rgba(74,222,128,.4); }
+.badge.warn { color: var(--spe); border-color: rgba(251,191,36,.4); }
+
+/* ---- stats ---- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 14px; margin: 22px 0; }
+.stat { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; position: relative; overflow: hidden; }
+.stat::after { content:""; position:absolute; right:-20px; top:-20px; width:80px; height:80px; border-radius:50%; background: radial-gradient(circle, rgba(255,122,61,.12), transparent 70%); }
+.stat .v { font-size: 30px; font-weight: 800; letter-spacing: -1px; }
+.stat .l { color: var(--mut); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.epi { display: flex; gap: 6px; margin-top: 10px; height: 8px; border-radius: 6px; overflow: hidden; background: var(--bg); }
+.epi span { display: block; height: 100%; }
+
+/* ---- tabs ---- */
+.tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line); margin-bottom: 20px; flex-wrap: wrap; }
+.tabs button { background: none; border: none; color: var(--mut); padding: 10px 14px; cursor: pointer; font-size: 14px; font-weight: 600; border-bottom: 2px solid transparent; transition: .15s; }
+.tabs button:hover { color: var(--txt); }
+.tabs button.active { color: var(--acc2); border-bottom-color: var(--acc); }
+
+.panel { display: none; }
+.panel.active { display: block; animation: fade .25s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px);} to{opacity:1;transform:none;} }
+
+/* ---- thread cards ---- */
+.thread { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 18px; overflow: hidden; box-shadow: var(--shadow); }
+.thread > header { display: flex; align-items: flex-start; gap: 14px; padding: 18px 20px; cursor: pointer; }
+.thread > header:hover { background: var(--panel2); }
+.tid { font-size: 12px; font-weight: 800; color: var(--acc2); background: rgba(255,122,61,.12); border: 1px solid rgba(255,122,61,.3); border-radius: 8px; padding: 4px 8px; white-space: nowrap; }
+.thead-main { flex: 1; min-width: 0; }
+.thead-main h3 { font-size: 16px; font-weight: 700; line-height: 1.35; }
+.meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
+.chip { font-size: 11px; color: var(--mut); background: var(--bg2); border: 1px solid var(--line); border-radius: 20px; padding: 3px 9px; }
+.chip.dom { color: var(--acc2); }
+.chip.open { color: var(--ust); border-color: rgba(74,222,128,.3); }
+.chip.exhausted { color: var(--mut); }
+.chip.weak { color: var(--spe); }
+.tens { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--mut); }
+.bar { width: 54px; height: 6px; border-radius: 4px; background: var(--bg); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--wni), var(--acc)); }
+.caret { color: var(--mut); transition: .2s; font-size: 13px; padding-top: 4px; }
+.thread.expanded .caret { transform: rotate(90deg); }
+
+.cycles { display: none; padding: 0 20px 8px; }
+.thread.expanded .cycles { display: block; }
+.cycle { border-top: 1px solid var(--line); padding: 16px 0; }
+.cycle .cnum { font-size: 11px; letter-spacing: 1px; color: var(--mut); text-transform: uppercase; }
+.cycle h4 { font-size: 15px; margin: 4px 0 6px; line-height: 1.4; }
+.czemu { color: var(--mut); font-style: italic; font-size: 13px; margin-bottom: 10px; border-left: 2px solid var(--line); padding-left: 10px; }
+.body { font-size: 14px; color: #d4d8e2; }
+.body p { margin: 8px 0; }
+.branches { margin-top: 12px; display: grid; gap: 6px; }
+.branch { display: flex; align-items: center; gap: 10px; background: var(--bg2); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; font-size: 13px; }
+.tflag { font-size: 11px; font-weight: 800; min-width: 26px; height: 22px; display: grid; place-items: center; border-radius: 6px; }
+.t5 { background: rgba(255,122,61,.18); color: var(--acc); }
+.t4 { background: rgba(96,165,250,.16); color: var(--wni); }
+.t3 { background: rgba(167,139,250,.14); color: var(--nie); }
+.t2,.t1 { background: var(--panel2); color: var(--mut); }
+.samoocena { margin-top: 12px; font-size: 12px; color: var(--mut); }
+.samoocena b { color: var(--ust); }
+
+/* epistemic markers inline */
+.mk { font-size: 10px; font-weight: 800; letter-spacing: .5px; padding: 1px 5px; border-radius: 5px; vertical-align: middle; }
+.mk.USTALONE { color: var(--ust); background: rgba(74,222,128,.13); }
+.mk.WNIOSEK { color: var(--wni); background: rgba(96,165,250,.13); }
+.mk.SPEKULACJA { color: var(--spe); background: rgba(251,191,36,.13); }
+.mk.NIEWIADOMA { color: var(--nie); background: rgba(167,139,250,.13); }
+
+/* ---- prose panels ---- */
+.prose { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px 26px; box-shadow: var(--shadow); }
+.prose h1, .prose h2, .prose h3 { margin: 14px 0 8px; }
+.prose h1 { font-size: 20px; } .prose h2 { font-size: 16px; color: var(--acc2); } .prose h3 { font-size: 14px; }
+.prose p { margin: 8px 0; color: #d4d8e2; }
+.prose ul { margin: 8px 0 8px 20px; } .prose li { margin: 4px 0; }
+.prose table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.prose th, .prose td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.prose th { background: var(--bg2); color: var(--acc2); }
+.prose code { background: var(--bg); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+.prose blockquote { border-left: 3px solid var(--acc); margin: 10px 0; padding: 4px 14px; color: var(--mut); }
+.empty { color: var(--mut); text-align: center; padding: 40px; font-style: italic; }
+
+.timeline { list-style: none; }
+.timeline li { position: relative; padding: 8px 0 8px 24px; border-left: 2px solid var(--line); font-size: 13px; }
+.timeline li::before { content:""; position: absolute; left: -6px; top: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 10px rgba(255,122,61,.6); }
+
+/* ---- footer ---- */
+footer { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--mut); font-size: 12px; flex-wrap: wrap; gap: 10px; }
+.legend { display: flex; gap: 10px; }
+.legend i { font-style: normal; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 5px; }
+.legend .m-ust { color: var(--ust); background: rgba(74,222,128,.12); }
+.legend .m-wni { color: var(--wni); background: rgba(96,165,250,.12); }
+.legend .m-spe { color: var(--spe); background: rgba(251,191,36,.12); }
+.legend .m-nie { color: var(--nie); background: rgba(167,139,250,.12); }
+
+/* ---- toast ---- */
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--panel2); border: 1px solid var(--line); color: var(--txt); padding: 12px 18px; border-radius: 12px; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: .3s; max-width: 90vw; font-size: 13px; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.err { border-color: var(--spe); }
+
+</style>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🜂</text></svg>" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="glyph">🜂</span>
+        <div>
+          <h1>CIEKAWOŚĆ</h1>
+          <p class="tagline">pętla jest głupia · mózg jest w CLAUDE.md</p>
+        </div>
+      </div>
+      <div class="actions">
+        <span id="pulse" class="pulse" title="auto-odświeżanie"></span>
+        <span id="modeBadge" class="badge muted">…</span>
+        <button id="btnCycle" class="btn">▶ Cykl</button>
+        <button id="btnDistill" class="btn ghost">⚗ Destyluj</button>
+        <button id="btnRefresh" class="btn ghost">⟳</button>
+      </div>
+    </header>
+
+    <section class="stats" id="stats"></section>
+
+    <nav class="tabs" id="tabs">
+      <button data-tab="watki" class="active">Wątki</button>
+      <button data-tab="najlepsze">Najlepsze</button>
+      <button data-tab="dziennik">Dziennik</button>
+      <button data-tab="ziarna">Ziarna</button>
+    </nav>
+
+    <main>
+      <section id="panel-watki" class="panel active"></section>
+      <section id="panel-najlepsze" class="panel"></section>
+      <section id="panel-dziennik" class="panel"></section>
+      <section id="panel-ziarna" class="panel"></section>
+    </main>
+
+    <footer>
+      <span id="ts"></span>
+      <span class="legend">
+        <i class="m-ust">USTALONE</i>
+        <i class="m-wni">WNIOSEK</i>
+        <i class="m-spe">SPEKULACJA</i>
+        <i class="m-nie">NIEWIADOMA</i>
+      </span>
+    </footer>
+  </div>
+
+  <div id="toast"></div>
+  
+<script>
+window.__STATE__ = {"generatedAt":"2026-06-28T16:32:37.809Z","stats":{"threads":1,"openThreads":1,"totalCycles":3,"maxTension":5},"epistemic":{"USTALONE":1,"WNIOSEK":4,"SPEKULACJA":3,"NIEWIADOMA":4},"threads":[{"id":"001","file":"001-smoki.md","rootQuestion":"Dlaczego niezależne kultury wymyśliły niemal identyczne smoki?","domena":"antropologia / mit","status":"OTWARTY","zalozony":"2026-06-28","cycles":[{"num":1,"question":"Dlaczego wikingowie, Chińczycy, Aztekowie i Grecy wymyślili skrzydlate gady, nigdy się nie kontaktując?","czemu":"zbieżność bez kontaktu domaga się wspólnej przyczyny — albo w świecie, albo w nas.","body":"Najnudniejsza odpowiedź — „znajdowali kości dinozaurów\" — nie wystarcza. `[USTALONE]` Skamieniałości odkrywano rzadko, a ich składanie w skrzydlatego gada wymagałoby anatomicznej rekonstrukcji, której te kultury nie wykonywały. To wyjaśnia pojedyncze legendy (np. gryf a Protoceratops na Jedwabnym Szlaku), nie globalny wzorzec.\n\nLepsza hipoteza: smok nie jest zwierzęciem, jest **złożeniem odziedziczonych lęków drapieżniczych**. `[WNIOSEK]` Naczelne noszą trzy zaszyte archetypy zagrożenia: wąż (gad, jad), wielki kot (pazury, zasadzka z ukrycia), ptak drapieżny (atak z góry). `[SPEKULACJA]` Smok skleja wszystkie trzy w jeden obiekt — łuska węża, szpony kota, skrzydła orła. Nie wymyślaliśmy go niezależnie; odziedziczyliśmy ten sam strach, a kultura dokleiła mu twarz. To tłumaczyłoby, czemu detale się różnią (lokalna fauna), a szkielet trwa.\n\n`[NIEWIADOMA]` Czego nie wiemy: czy „trójca drapieżników\" jest realnie zakodowana, czy to ładna narracja dopasowana po fakcie. Eksperymenty z lękiem przed wężami u naczelnych istnieją; przed „złożeniem trzech\" — nie.","branches":[{"tension":5,"text":"Jakie lęki ostatnich 100 lat nie mają jeszcze swojego smoka — i co nim zostanie?"},{"tension":4,"text":"Dlaczego smok Zachodu jest wrogiem do zabicia, a smok Wschodu sprzymierzeńcem, skoro „surowiec lękowy\" jest ten sam?"},{"tension":2,"text":"Czy istnieje kultura całkowicie bez smoka?"}],"samoocena":"przesunęło — przeniosło pytanie z „skąd legenda\" na „co nasz mózg robi z lękiem\", co otwiera mocniejszą gałąź.","markers":{"USTALONE":1,"WNIOSEK":1,"SPEKULACJA":1,"NIEWIADOMA":1}},{"num":2,"question":"Dlaczego smok Zachodu to potwór do zabicia, a smok Wschodu opiekun deszczu — z tego samego surowca lękowego?","czemu":"identyczny obraz, odwrotny znak emocjonalny — różnica musi leżeć nie w smoku, lecz w tym, czego dana kultura się bała bardziej.","body":"Oczywiste „bo różne kultury\" niczego nie tłumaczy. `[WNIOSEK]` Pęknięcie biegnie wzdłuż osi: czego dana cywilizacja bała się egzystencjalnie. Europa rolnicza i feudalna bała się **chaosu z zewnątrz** — bestii z dziczy, która pożera wieś; bohater zabija smoka, bo cywilizacja to akt ujarzmienia natury. `[SPEKULACJA]` Chiny ryżowe bały się **wody** — powodzi i suszy — a nie sposób wody „zabić\"; można ją tylko ugłaskać. Więc ich smok stał się bóstwem rzek: nie wrogiem do pokonania, lecz siłą do zjednania. Ten sam zlepek pazurów i łusek; przeciwny znak, bo modeluje przeciwny lęk: Zachód — drapieżnika, Wschód — żywioł.\n\n`[WNIOSEK]` Test tej hipotezy: smoki „wodne/opiekuńcze\" powinny dominować tam, gdzie przetrwanie zależało od kapryśnej wody (monsun, wielkie rzeki), a „drapieżnicze/wrogie\" tam, gdzie zagrożeniem była dzicz i najazd. `[NIEWIADOMA]` Czy wzorzec trzyma się globalnie (Mezoameryka, Afryka) — nie sprawdzone tutaj.","branches":[{"tension":5,"text":"Jeśli mit modeluje największy lęk cywilizacji, to jaki „smok\" buduje dziś kultura, która najbardziej boi się utraty kontroli nad własnymi narzędziami?"},{"tension":3,"text":"Czy da się przewidzieć charakter mitologii kultury, znając tylko jej główne zagrożenie środowiskowe?"}],"samoocena":"przesunęło — z „smoki są różne\" na „mit to mapa największego lęku\", co jest narzędziem ogólnym, nie ciekawostką o gadach.","markers":{"USTALONE":0,"WNIOSEK":2,"SPEKULACJA":1,"NIEWIADOMA":1}},{"num":3,"question":"Jaki „smok\" buduje dziś kultura, która najbardziej boi się utraty kontroli nad własnymi narzędziami?","czemu":"jeśli mit to mapa największego lęku cywilizacji, to nasz właśnie powstaje na żywo — i można złapać go w trakcie krzepnięcia.","body":"Oczywista odpowiedź — „AI, oczywiście, że robot\" — jest za płytka i myli postać z funkcją. `[WNIOSEK]` Smok nigdy nie był po prostu „groźnym zwierzęciem\"; był *naszą własną siłą, która się usamodzielniła*. Ogień to pierwsze narzędzie człowieka; smok ziejący ogniem to narzędzie obrócone przeciw nam. To jest niezmiennik — nie pazury, nie skrzydła, tylko **dar, który wymyka się dawcy**. Prometeusz i smok to dwie strony tej samej monety.\n\n`[SPEKULACJA]` Dzisiejszy smok nie ma więc łusek — ma *naszą twarz*. Boimy się nie maszyny z zewnątrz (to stary lęk Zachodu — bestia z dziczy), lecz inteligencji, którą sami zbudowaliśmy z własnego języka i która zaczyna mówić lepiej od nas. Stąd dwa znaki, dokładnie jak Zachód/Wschód z Cyklu 2: kultura, która boi się utraty pracy i prawdy, buduje smoka-do-zabicia (regulacja, „wyłączmy to\"); kultura, która boi się zostać w tyle, buduje smoka-opiekuna (akceleracja, „ujarzmijmy deszcz danych\"). Ten sam surowiec lękowy, przeciwny znak — wzorzec z Cyklu 2 trzyma się dla narzędzia, nie tylko dla żywiołu.\n\n`[NIEWIADOMA]` Czego nie wiem: czy „dar, który się usamodzielnia\" to realny niezmiennik wszystkich smoków, czy tylko tych, które pamiętam. Smok-powódź ze Wschodu nie był niczyim darem — był żywiołem. Możliwe, że istnieją dwa różne korzenie (drapieżnik vs. żywioł vs. narzędzie), które kultura skleja w jeden obraz dopiero wtórnie.","branches":[{"tension":5,"text":"Jeśli smok = „nasza siła, która się usamodzielniła\", to czy każda cywilizacja wytwarza smoka dopiero w momencie, gdy jej najważniejsze narzędzie staje się dla niej nieczytelne?"},{"tension":3,"text":"Czy mit potrzebuje, by smoka dało się *zabić* — i co się dzieje z kulturą, której smoka zabić nie można?"},{"tension":2,"text":"Czy science fiction pełni dziś funkcję, którą kiedyś pełnił mit o smoku?"}],"samoocena":"przesunęło — scaliło trzy cykle w jeden niezmiennik („dar, który wymyka się dawcy\") i zarazem sam go nadłamało w [NIEWIADOMA], co otwiera mocniejszą gałąź niż domknęło.","markers":{"USTALONE":0,"WNIOSEK":1,"SPEKULACJA":1,"NIEWIADOMA":2}}],"openBranches":[{"tension":5,"text":"Jeśli smok = „nasza siła, która się usamodzielniła\", to czy każda cywilizacja wytwarza smoka dopiero w momencie, gdy jej najważniejsze narzędzie staje się dla niej nieczytelne?"},{"tension":3,"text":"Czy mit potrzebuje, by smoka dało się *zabić* — i co się dzieje z kulturą, której smoka zabić nie można?"},{"tension":2,"text":"Czy science fiction pełni dziś funkcję, którą kiedyś pełnił mit o smoku?"}],"maxTension":5}],"dziennik":["2026-06-28 — cykl 3 / 001-smoki — niezmiennik „dar, który wymyka się dawcy\"; gałąź 5 otwarta (narzędzie nieczytelne). [PRZESUNĘŁO]"],"indeks":"# Indeks wątków\n\n| Wątek | Domena | Status | Otwarte gałęzie (napięcie) |\n|---|---|---|---|\n| 001-smoki | antropologia / mit | OTWARTY | „czy cywilizacja wytwarza smoka dopiero, gdy jej kluczowe narzędzie staje się nieczytelne\" (5); „czy mit potrzebuje, by smoka dało się zabić\" (3) |\n","najlepsze":null,"seed":"# Ziarna domen — punkty wejścia do rotacji\n\nSystem sięga tu **tylko** przy zakładaniu nowego korzenia (gdy brak otwartej gałęzi z napięciem ≥ 4). Wybiera domenę najmniej obecną w `dziennik.md`, żeby utrzymać różnorodność. To są wektory startowe, nie tematy — dobre pytanie często rodzi się na styku dwóch domen.\n\n- **biologia / ewolucja** — dlaczego coś przetrwało, choć wygląda na wadliwe\n- **język** — to, co gramatyka zdradza o myśleniu mówiących\n- **fizyka / kosmos** — granice tego, co intuicja podpowiada błędnie\n- **matematyka** — gdzie liczby zachowują się wbrew zdrowemu rozsądkowi\n- **psychologia / percepcja** — błędy poznawcze, które kiedyś były zaletą\n- **historia** — przypadki, gdzie „oczywista\" przyczyna jest fałszywa\n- **ekonomia / teoria gier** — gdy racjonalne jednostki dają nieracjonalną całość\n- **technologia** — narzędzia, które zmieniły ludzi mocniej, niż zauważyliśmy\n- **antropologia / mit** — wzorce powtarzające się w odległych kulturach\n- **sztuka / muzyka** — dlaczego pewne formy „działają\" na mózg\n- **chemia / materiały** — codzienne substancje o dziwnej naturze\n- **sieci / złożoność** — jak proste reguły dają nieprzewidywalne całości\n\n> Styk dwóch wektorów > pojedynczy wektor. „Co teoria gier mówi o micie o smoku\" bije „opowiedz o smokach\".\n","claudeAvailable":false,"staticBuild":true};
+const _f = window.fetch ? window.fetch.bind(window) : null;
+window.fetch = (url, opts) => {
+  if (typeof url === 'string' && url.indexOf('/api/state') === 0)
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(window.__STATE__) });
+  if (opts && opts.method === 'POST')
+    return Promise.resolve({ ok: false, status: 501, json: () => Promise.resolve({ error: 'Tryb statyczny (offline). Aby odpalać cykle uruchom: node server.js' }) });
+  return _f ? _f(url, opts) : Promise.reject(new Error('offline'));
+};
+</script>
+<script>
+'use strict';
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => (s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+const EPI = { USTALONE: 'USTALONE', WNIOSEK: 'WNIOSEK', SPEKULACJA: 'SPEKULACJA', NIEWIADOMA: 'NIEWIADOMA' };
+
+// Kolorowanie znaczników [USTALONE] itd. w tekście
+function markEpistemic(text) {
+  let html = esc(text);
+  for (const k of Object.keys(EPI)) {
+    html = html.replace(new RegExp('\\[' + k + '\\]', 'g'), `<span class="mk ${k}">${k}</span>`);
+  }
+  return html;
+}
+
+// body -> akapity, z bold **...** i znacznikami
+function renderBody(text) {
+  return text.split(/\n\s*\n/).map((para) => {
+    let h = markEpistemic(para.trim());
+    h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    h = h.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+    return `<p>${h}</p>`;
+  }).join('');
+}
+
+// Minimalny renderer markdown dla paneli prozą (tabele, listy, nagłówki)
+function md(text) {
+  if (!text) return '<div class="empty">— pusto —</div>';
+  const lines = text.split('\n');
+  let out = '', i = 0;
+  while (i < lines.length) {
+    const l = lines[i];
+    // tabela
+    if (/^\s*\|/.test(l) && /^\s*\|/.test(lines[i + 1] || '') && /-/.test(lines[i + 1] || '')) {
+      const head = l.split('|').slice(1, -1).map((c) => c.trim());
+      i += 2;
+      let rows = '';
+      while (i < lines.length && /^\s*\|/.test(lines[i])) {
+        const cells = lines[i].split('|').slice(1, -1).map((c) => inline(c.trim()));
+        rows += '<tr>' + cells.map((c) => `<td>${c}</td>`).join('') + '</tr>';
+        i++;
+      }
+      out += '<table><thead><tr>' + head.map((h) => `<th>${esc(h)}</th>`).join('') + '</tr></thead><tbody>' + rows + '</tbody></table>';
+      continue;
+    }
+    if (/^###\s/.test(l)) { out += `<h3>${inline(l.replace(/^###\s/, ''))}</h3>`; i++; continue; }
+    if (/^##\s/.test(l)) { out += `<h2>${inline(l.replace(/^##\s/, ''))}</h2>`; i++; continue; }
+    if (/^#\s/.test(l)) { out += `<h1>${inline(l.replace(/^#\s/, ''))}</h1>`; i++; continue; }
+    if (/^>\s?/.test(l)) { out += `<blockquote>${inline(l.replace(/^>\s?/, ''))}</blockquote>`; i++; continue; }
+    if (/^\s*[-*]\s/.test(l)) {
+      let items = '';
+      while (i < lines.length && /^\s*[-*]\s/.test(lines[i])) { items += `<li>${inline(lines[i].replace(/^\s*[-*]\s/, ''))}</li>`; i++; }
+      out += `<ul>${items}</ul>`;
+      continue;
+    }
+    if (l.trim() === '') { i++; continue; }
+    out += `<p>${inline(l)}</p>`; i++;
+  }
+  return out;
+}
+function inline(s) {
+  let h = markEpistemic(s);
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+  h = h.replace(/„([^"]+)"/g, '„<em>$1</em>"');
+  return h;
+}
+
+function statusChip(t) {
+  if (/WYCZERPANY/i.test(t.status)) return '<span class="chip exhausted">⌀ wyczerpany</span>';
+  if (/S[ŁL]ABY/i.test(t.status)) return '<span class="chip weak">⚠ słaby</span>';
+  return '<span class="chip open">● otwarty</span>';
+}
+
+function renderThread(t) {
+  const cycles = t.cycles.map((c) => `
+    <div class="cycle">
+      <div class="cnum">Cykl ${c.num}</div>
+      <h4>${esc(c.question)}</h4>
+      ${c.czemu ? `<div class="czemu">${esc(c.czemu)}</div>` : ''}
+      <div class="body">${renderBody(c.body)}</div>
+      ${c.branches.length ? `<div class="branches">${c.branches.map((b) => `
+        <div class="branch"><span class="tflag t${b.tension}">${b.tension}</span><span>${esc(b.text)}</span></div>`).join('')}</div>` : ''}
+      ${c.samoocena ? `<div class="samoocena"><b>samoocena</b> — ${esc(c.samoocena)}</div>` : ''}
+    </div>`).join('');
+
+  const pct = (t.maxTension / 5) * 100;
+  return `
+    <article class="thread" data-id="${t.id}">
+      <header>
+        <span class="tid">${esc(t.id)}</span>
+        <div class="thead-main">
+          <h3>${esc(t.rootQuestion)}</h3>
+          <div class="meta">
+            <span class="chip dom">${esc(t.domena)}</span>
+            ${statusChip(t)}
+            <span class="chip">${t.cycles.length} ${t.cycles.length === 1 ? 'cykl' : 'cykli'}</span>
+            <span class="tens">napięcie gałęzi <span class="bar"><i style="width:${pct}%"></i></span> ${t.maxTension}/5</span>
+          </div>
+        </div>
+        <span class="caret">▶</span>
+      </header>
+      <div class="cycles">${cycles}</div>
+    </article>`;
+}
+
+function epiBar(e) {
+  const total = Object.values(e).reduce((a, b) => a + b, 0) || 1;
+  const map = { USTALONE: '--ust', WNIOSEK: '--wni', SPEKULACJA: '--spe', NIEWIADOMA: '--nie' };
+  return Object.entries(e).map(([k, v]) =>
+    `<span style="width:${(v / total) * 100}%;background:var(${map[k]})" title="${k}: ${v}"></span>`).join('');
+}
+
+function renderStats(s) {
+  const { stats, epistemic } = s;
+  $('#stats').innerHTML = `
+    <div class="stat"><div class="v">${stats.threads}</div><div class="l">Wątki</div></div>
+    <div class="stat"><div class="v">${stats.openThreads}</div><div class="l">Otwarte</div></div>
+    <div class="stat"><div class="v">${stats.totalCycles}</div><div class="l">Cykle łącznie</div></div>
+    <div class="stat"><div class="v">${stats.maxTension}<span style="font-size:16px;color:var(--mut)">/5</span></div><div class="l">Maks. napięcie</div></div>
+    <div class="stat" style="grid-column: span 1; min-width:220px">
+      <div class="l" style="margin:0 0 4px">Bilans epistemiczny</div>
+      <div class="epi">${epiBar(epistemic)}</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:8px">
+        ${Object.entries(epistemic).map(([k, v]) => `${k.slice(0, 3)} ${v}`).join(' · ')}
+      </div>
+    </div>`;
+}
+
+function toast(msg, err) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show' + (err ? ' err' : '');
+  setTimeout(() => (t.className = ''), 4200);
+}
+
+async function load() {
+  try {
+    const s = await (await fetch('/api/state')).json();
+    renderStats(s);
+
+    $('#panel-watki').innerHTML = s.threads.length
+      ? s.threads.map(renderThread).join('')
+      : '<div class="empty">Brak wątków. Uruchom cykl, by zasiać pierwszy korzeń.</div>';
+
+    $('#panel-najlepsze').innerHTML = s.najlepsze
+      ? `<div class="prose">${md(s.najlepsze)}</div>`
+      : '<div class="empty">Brak <code>najlepsze.md</code> — uruchom „⚗ Destyluj", by wyłowić najmocniejsze wnioski.</div>';
+
+    $('#panel-dziennik').innerHTML = s.dziennik.length
+      ? `<div class="prose"><h2>Dziennik iteracji</h2><ul class="timeline">${s.dziennik.map((d) => `<li>${inline(d)}</li>`).join('')}</ul></div>`
+      : '<div class="empty">Dziennik pusty.</div>';
+
+    $('#panel-ziarna').innerHTML = `<div class="prose">${md(s.seed)}</div>`;
+
+    const badge = $('#modeBadge');
+    if (s.claudeAvailable) { badge.textContent = '● tryb pełny'; badge.className = 'badge ok'; }
+    else { badge.textContent = '○ podgląd'; badge.className = 'badge warn'; $('#btnCycle').title = $('#btnDistill').title = 'Wymaga `claude` w PATH na maszynie serwera'; }
+
+    $('#ts').textContent = 'odświeżono ' + new Date(s.generatedAt).toLocaleTimeString('pl-PL');
+    bindThreads();
+  } catch (e) {
+    toast('Błąd ładowania: ' + e.message, true);
+  }
+}
+
+function bindThreads() {
+  $$('.thread > header').forEach((h) => h.onclick = () => h.parentElement.classList.toggle('expanded'));
+}
+
+async function runJob(endpoint, btn, label) {
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '… pracuje';
+  toast(label + ' — uruchomiono…');
+  try {
+    const r = await fetch(endpoint, { method: 'POST' });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'błąd');
+    toast(label + ' — gotowe.');
+    await load();
+  } catch (e) {
+    toast(e.message, true);
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+// tabs
+$$('#tabs button').forEach((b) => b.onclick = () => {
+  $$('#tabs button').forEach((x) => x.classList.remove('active'));
+  $$('.panel').forEach((p) => p.classList.remove('active'));
+  b.classList.add('active');
+  $('#panel-' + b.dataset.tab).classList.add('active');
+});
+
+$('#btnRefresh').onclick = () => { load(); toast('Odświeżono'); };
+$('#btnCycle').onclick = (e) => runJob('/api/cycle', e.target, 'Cykl ciekawości');
+$('#btnDistill').onclick = (e) => runJob('/api/distill', e.target, 'Destylacja');
+
+load();
+setInterval(load, 15000); // auto-odświeżanie co 15 s
+
+</script>
+</body>
+</html>

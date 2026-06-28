@@ -42,6 +42,14 @@ Co daje:
 
 Dashboard tylko **czyta** te same pliki markdown, które są źródłem prawdy — niczego nie dubluje.
 
+### Wersja offline (jeden plik, np. na telefon)
+
+```bash
+node build.cjs    # albo: npm run build
+```
+
+Tworzy `dist/ciekawosc-dashboard.html` — samodzielny plik z wbudowanym aktualnym stanem (CSS + JS + dane inline). Otwierasz go bez serwera, na dowolnym urządzeniu. W tym trybie przyciski „Cykl/Destyluj" są nieaktywne (sterowanie pętlą wymaga serwera). Przebuduj plik po nowych cyklach, by odświeżyć dane.
+
 ## Co gdzie
 
 | Plik | Rola |
