@@ -1,0 +1,12 @@
+{
+  "name": "ciekawosc-dashboard",
+  "version": "1.0.0",
+  "description": "Dashboard dla autonomicznej pętli CIEKAWOŚĆ — podgląd wątków, napięć i bilansu epistemicznego.",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

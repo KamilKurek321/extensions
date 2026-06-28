@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIEKAWOŚĆ · dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🜂</text></svg>" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="glyph">🜂</span>
+        <div>
+          <h1>CIEKAWOŚĆ</h1>
+          <p class="tagline">pętla jest głupia · mózg jest w CLAUDE.md</p>
+        </div>
+      </div>
+      <div class="actions">
+        <span id="pulse" class="pulse" title="auto-odświeżanie"></span>
+        <span id="modeBadge" class="badge muted">…</span>
+        <button id="btnCycle" class="btn">▶ Cykl</button>
+        <button id="btnDistill" class="btn ghost">⚗ Destyluj</button>
+        <button id="btnRefresh" class="btn ghost">⟳</button>
+      </div>
+    </header>
+
+    <section class="stats" id="stats"></section>
+
+    <nav class="tabs" id="tabs">
+      <button data-tab="watki" class="active">Wątki</button>
+      <button data-tab="najlepsze">Najlepsze</button>
+      <button data-tab="dziennik">Dziennik</button>
+      <button data-tab="ziarna">Ziarna</button>
+    </nav>
+
+    <main>
+      <section id="panel-watki" class="panel active"></section>
+      <section id="panel-najlepsze" class="panel"></section>
+      <section id="panel-dziennik" class="panel"></section>
+      <section id="panel-ziarna" class="panel"></section>
+    </main>
+
+    <footer>
+      <span id="ts"></span>
+      <span class="legend">
+        <i class="m-ust">USTALONE</i>
+        <i class="m-wni">WNIOSEK</i>
+        <i class="m-spe">SPEKULACJA</i>
+        <i class="m-nie">NIEWIADOMA</i>
+      </span>
+    </footer>
+  </div>
+
+  <div id="toast"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
