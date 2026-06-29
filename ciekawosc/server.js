@@ -187,13 +187,36 @@ const server = http.createServer((req, res) => {
   fs.createReadStream(full).pipe(res);
 });
 
+// Otwiera dashboard w domyślnej przeglądarce (Win/Mac/Linux). Cicho ignoruje błędy (np. brak GUI/serwer).
+function openBrowser(url) {
+  if (process.env.NO_OPEN) return;
+  const cmd = process.platform === 'win32' ? 'cmd'
+            : process.platform === 'darwin' ? 'open'
+            : 'xdg-open';
+  const args = process.platform === 'win32' ? ['/c', 'start', '', url] : [url];
+  try { spawn(cmd, args, { stdio: 'ignore', detached: true }).on('error', () => {}).unref(); } catch { /* ignore */ }
+}
+
 // Eksport do buildu statycznego (build.cjs) — serwer startuje tylko przy bezpośrednim uruchomieniu.
 module.exports = { buildState, parseThread };
 
 if (require.main === module) {
+  server.on('error', (e) => {
+    if (e.code === 'EADDRINUSE') {
+      console.error(`\n✗ Port ${PORT} jest zajęty. Zamknij poprzedni serwer albo użyj innego portu:`);
+      console.error(`   PORT=8080 node server.js\n`);
+    } else {
+      console.error('✗ Błąd serwera:', e.message);
+    }
+    process.exit(1);
+  });
   server.listen(PORT, () => {
-    console.log('▶ CIEKAWOŚĆ Dashboard');
-    console.log(`  http://localhost:${PORT}`);
-    console.log(`  tryb: ${claudeOnPath() ? 'pełny (claude w PATH)' : 'podgląd (brak claude)'}`);
+    const url = `http://localhost:${PORT}`;
+    console.log('\n  ▶ CIEKAWOŚĆ Dashboard działa');
+    console.log(`  ────────────────────────────────`);
+    console.log(`  Otwórz w przeglądarce:  ${url}`);
+    console.log(`  Tryb: ${claudeOnPath() ? 'pełny — przyciski „Cykl/Destyluj" działają' : 'podgląd (brak `claude` w PATH)'}`);
+    console.log(`  Zatrzymanie: Ctrl-C\n`);
+    openBrowser(url);
   });
 }

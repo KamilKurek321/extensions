@@ -25,12 +25,25 @@ Co kilkanaście cykli puść destylację — oceni i wyłowi najmocniejsze wnios
 
 ## Dashboard
 
-Wizualny podgląd stanu systemu — wątki, gałęzie z napięciem, bilans epistemiczny, dziennik. Serwer bez żadnych zależności (czysty Node ≥ 18):
+Wizualny podgląd stanu systemu — wątki, gałęzie z napięciem, bilans epistemiczny, dziennik. Serwer bez żadnych zależności (czysty Node ≥ 18).
+
+**Najprościej — dwuklik launchera** (sam sprawdzi Node, odpali serwer i otworzy przeglądarkę):
+
+| System | Plik |
+|---|---|
+| Windows | `start-windows.bat` |
+| macOS | `start-mac.command` |
+| Linux | `start-linux.sh` |
+
+**Albo z terminala:**
 
 ```bash
-node server.js              # http://localhost:4711
+node server.js              # http://localhost:4711 — otwiera przeglądarkę sam
 PORT=8080 node server.js    # inny port
+NO_OPEN=1 node server.js    # bez auto-otwierania przeglądarki
 ```
+
+> Wymaga zainstalowanego [Node.js](https://nodejs.org) (LTS). Sprawdź: `node -v`.
 
 Co daje:
 
